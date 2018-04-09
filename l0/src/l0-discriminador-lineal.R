@@ -122,7 +122,7 @@ evaluate <- function(data)
         if((YResultado < 0 && YTesteo < 0) || (YResultado > 0 && YTesteo > 0)) {
           exitos <- exitos + 1
         } else {
-          errores <- errores + 1
+          errores[i] <- errores[i] + 1
         }  
       }
       
