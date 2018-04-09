@@ -1,0 +1,341 @@
+setwd("D:/alan/l0")
+getwd()
+setwd("src")
+data <- read.csv("../data/iris.data")
+data
+inv
+View(data)
+View(data)
+pre_process()
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+pre_process()
+library(matlib)
+p <- pre_process()
+learn(p, nrow(p))
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+learn(p, nrow(p))
+learn(p, nrow(p))
+learn(p, nrow(p))
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+learn(p, nrow(p))
+learn <- function(data,N)
+{
+N*0.7 -> finEntr;
+data[sample(nrow(data),N),] -> XYDesordenada
+XEntrenamiento <- NULL
+YEntrenamiento <- NULL
+XTesteo <- NULL
+YTesteo <- NULL
+#######
+#
+# ADD YOUR CODE HERE
+#
+########
+XEntrenamiento <- XYDesordenada[1:finEntr, 1:4]
+YEntrenamiento <- XYDesordenada[1:finEntr, 5]
+XTesteo <- XYDesordenada[finEntr + 1:nrow(XYDesordenada), 1:4]
+YTesteo <- XYDesordenada[finEntr + 1:nrow(XYDesordenada), 5]
+# w <- solve(t(XEntrenamiento) %*% as.matrix(XEntrenamiento)) %*% t(XEntrenamiento) %*% as.matrix(YEntrenamiento)
+w <- as.matrix(XEntrenamiento) %*% as.matrix(XEntrenamiento)
+ret <- list(XEntrenamiento=XEntrenamiento,
+YEntrenamiento=YEntrenamiento,
+XTesteo=XTesteo,
+YTesteo=YTesteo,
+w=w)
+return(ret)
+}
+learn(p, nrow(p))
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+learn(p, nrow(p))
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+learn(p, nrow(p))
+####################################################################################################
+# Use esta funciÃ³n para realizar el preprocesamiento del dataset iris.data
+####################################################################################################
+# Esta funcion lee N datapoints del dataset iris.data
+# y devuelve una matriz numÃ©rica del dataset
+#
+pre_process <- function()
+{
+dataset.location <- "../data/iris.data"
+XY <- read.csv(dataset.location,header=TRUE,stringsAsFactors=FALSE)
+for(i in 1:nrow(XY)) {
+n <- XY[i, 5]
+if(n == "Iris-virginica") {
+XY[i, 6] <- "Iris-virginica"
+XY[i, 5] <- as.numeric(1)
+} else {
+XY[i, 6] <- "No-iris-virginica"
+XY[i, 5] <- as.numeric(-1)
+}
+}
+View(XY)
+return(XY)
+}
+####################################################################################################
+# Use esta funciÃ³n para realizar el aprendizaje del discriminador
+####################################################################################################
+# recibe una matriz numÃ©rica con los datos preprocesados
+# y devuelve una lista list(XEntrenamiento, YEntrenamiento, XTesteo, YTesteo, w)
+# donde:
+# XEntrenamiento: es la matriz X correspondiente a datos de entrenamiento
+# YEntrenamiento: es la matriz Y correspondiente a datos de entrenamiento
+# XTesteo: es la matriz X correspondiente a datos de testeo
+# YTesteo: es la matriz Y correspondiente a datos de testeo
+# w: es la matriz de pesos w obtenida en (4)
+#
+learn <- function(data,N)
+{
+N*0.7 -> finEntr;
+data[sample(nrow(data),N),] -> XYDesordenada
+XEntrenamiento <- NULL
+YEntrenamiento <- NULL
+XTesteo <- NULL
+YTesteo <- NULL
+#######
+#
+# ADD YOUR CODE HERE
+#
+########
+XEntrenamiento <- XYDesordenada[1:finEntr, 1:4]
+YEntrenamiento <- XYDesordenada[1:finEntr, 5]
+XTesteo <- XYDesordenada[finEntr + 1:nrow(XYDesordenada), 1:4]
+YTesteo <- XYDesordenada[finEntr + 1:nrow(XYDesordenada), 5]
+# w <- solve(t(XEntrenamiento) %*% as.matrix(XEntrenamiento)) %*% t(XEntrenamiento) %*% as.matrix(YEntrenamiento)
+w <- solve(t(XEntrenamiento) %*% as.matrix(XEntrenamiento)) %*% t(XEntrenamiento) %*% as.matrix(YEntrenamiento)
+ret <- list(XEntrenamiento=XEntrenamiento,
+YEntrenamiento=YEntrenamiento,
+XTesteo=XTesteo,
+YTesteo=YTesteo,
+w=w)
+return(ret)
+}
+####################################################################################################
+# Use esta funciÃ³n para realizar la evaluacion del desempeÃ±o del discriminador
+####################################################################################################
+# recibe una matriz numÃ©rica con los datos preprocesados
+# EvalÃºa el discriminador calculado su error
+# Muestra por pantalla y guarda en el archivo outputs.raws los resultados (punto c)
+# DescripciÃ³n de campos:
+# nombre de dataset
+# N
+# nÃºmero de repeticiÃ³n
+# error de clasificaciÃ³n
+# iris.data,N,R,E
+#
+evaluate <- function(data)
+{
+# place your code here
+#N<-150;
+N <- c(50,100,150)
+salida<-c(1:30)
+for(n in N)
+{
+errores <- c(1:10)
+for(i in 1:10){
+exitos<-0;
+l <- learn(data,n)
+#######
+#
+# ADD YOUR CODE HERE
+#
+########
+salida[n/50*10-10+i]<-(paste("iris.data, ",n,", ",i,", ",(errores[i])));
+}
+#ErrorPromedio<-0;
+#for(i in 1:10){
+#  ErrorPromedio<-errores[i]+ErrorPromedio;
+#  salida[n/50*10-10+i]<-(paste("iris.data, ",n,", ",i,", ",(errores[i])));
+#}
+#N<-N-50;
+}
+ref<-c("# DescripciÃ³n de campos:","# nombre de dataset","# N","# nÃºmero de repeticiÃ³n","# error promedio de clasificaciÃ³n");
+print(append(ref,salida));
+write(append(ref,salida),file="output.raws");
+}
+####################################################################################################
+# Use esta funciÃ³n muestra por pantalla los errores promedios para cada corrida
+####################################################################################################
+# procesa el archivo outputs.raws generado por evaluate()
+# devuelve las tupas (N,u)
+# N: numero de datos
+# u: error promedio
+#
+pos_process <- function() {
+res <- c("N","u")
+N.vector <- c(50,100,150)
+raw.data <- readLines("output.raws")
+#######
+#
+# ADD YOUR CODE HERE
+#
+########
+return(res)
+}
+####################################################################################################
+# Use esta funciÃ³n correr el experimento completo
+####################################################################################################
+#
+#
+run.experiment<- function()
+{
+set.seed(1)
+data <- pre_process()
+evaluate(data)
+pos_process()
+}
+learn(p, nrow(p))
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+learn(p, nrow(p))
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+learn(p, nrow(p))
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+learn(p, nrow(p))
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+learn(p, nrow(p))
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+learn(p, nrow(p))
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+View(l)
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+View(YResultado)
+exit
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+View(XEntrenamiento)
+View(XTesteo)
+View(XEntrenamiento)
+View(XEntrenamiento)
+View(XTesteo)
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+View(XYDesordenada)
+View(XEntrenamiento)
+View(XTesteo)
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+View(YResultado)
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+View(YResultado)
+View(YResultado)
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+View(YResultado)
+View(YResultado)
+View(YResultado)
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+run.experiment()
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+asd <- asd + 1
+asd <- 0
+asd <- asd +1
+asd <- asd + 2
+asd <- asd + 3
+asd
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+asd
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+n
+c
+run.experiment()
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+run.experiment()
+run.experiment()
+View(l)
+run.experiment()
+View(l)
+View(l)
+View(l$YTesteo)
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+View(l$YTesteo)
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+source('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+View(raw.data)
+raw.data
+raw.data[v===5]
+raw.data[v==5]
+raw.data[raw.data==5]
+raw.data[startsWith(raw.data, '#')]
+raw.data[!startsWith(raw.data, '#')]
+length(raw.data)
+length(data)
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+View(params)
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+debugSource('D:/alan/l0/src/l0-discriminador-lineal.R')
+run.experiment()
+params[2]
+params[1*
+]
+params
+params[2]
+params[3]
+params[4]
+params[1]
+params[[1]]
+params[1,1]
+params[1,2]
+params[2,1]
+params[[1]]
+params[[2]]
+params[[3]]
+params[3]
+params
+params[[1,1]]
+params[[1]]
+c(params)[1]
+c(params)[2]
+c(params)[1]
+c(params)[[1]
+]
+c(params)[[1]]
+params$1
+params
+View(params)
+params[[1]]

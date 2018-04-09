@@ -1,0 +1,35 @@
+# Descripción de campos:
+# nombre de dataset
+# N
+# número de repetición
+# error promedio de clasificación
+iris.data, 50 , 1 , 2
+iris.data, 50 , 2 , 2
+iris.data, 50 , 3 , 3
+iris.data, 50 , 4 , 2
+iris.data, 50 , 5 , 2
+iris.data, 50 , 6 , 0
+iris.data, 50 , 7 , 1
+iris.data, 50 , 8 , 0
+iris.data, 50 , 9 , 1
+iris.data, 50 , 10 , 3
+iris.data, 100 , 1 , 4
+iris.data, 100 , 2 , 3
+iris.data, 100 , 3 , 6
+iris.data, 100 , 4 , 2
+iris.data, 100 , 5 , 4
+iris.data, 100 , 6 , 5
+iris.data, 100 , 7 , 2
+iris.data, 100 , 8 , 6
+iris.data, 100 , 9 , 3
+iris.data, 100 , 10 , 5
+iris.data, 150 , 1 , 7
+iris.data, 150 , 2 , 3
+iris.data, 150 , 3 , 4
+iris.data, 150 , 4 , 5
+iris.data, 150 , 5 , 4
+iris.data, 150 , 6 , 8
+iris.data, 150 , 7 , 4
+iris.data, 150 , 8 , 4
+iris.data, 150 , 9 , 5
+iris.data, 150 , 10 , 3
