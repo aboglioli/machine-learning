@@ -44,6 +44,9 @@ learn <- function(data,N)
 {  
   
   N*0.7 -> finEntr;
+  
+  # XYDesordenada siempre será igual ya que la aleatoriedad se basa en la semilla definida en run.experiment: set.seed(1).
+  # De la semilla depende la aleatoriedad de sample.
   data[sample(nrow(data),N),] -> XYDesordenada
   XEntrenamiento <- NULL
   YEntrenamiento <- NULL
@@ -137,7 +140,7 @@ evaluate <- function(data)
   }
   
   ref<-c("# Descripción de campos:","# nombre de dataset","# N","# número de repetición","# error promedio de clasificación");
-  print(append(ref,salida));
+  # print(append(ref,salida));
   write(append(ref,salida),file="output.raws");
 }
 
@@ -159,17 +162,38 @@ pos_process <- function() {
   res <- c("N","u")
   N.vector <- c(50,100,150)
   raw.data <- readLines("output.raws")
+  
+  # Filtra las filas que comienzan con # (numeral)
   data <- raw.data[!startsWith(raw.data, '#')]
   
-  # format(round(mean(c(1,2,4)), 2), nsmall=2)
+  # Se utiliza como HashMap en donde la llave es N y contiene el vector de los errores para esa N.
+  errorList <- list()
   
   for(i in 1:length(data)) {
     params <- strsplit(data[i], ", ")[[1]]
-    N <- as.numeric(params[2])
+    N <- trimws(params[2])
     rep <- as.numeric(params[3])
     errores <- as.numeric(params[4])
     
-    vectorIndex <- match(N, N.vector)
+    # vectorIndex <- which(N.vector == N)
+    
+    if(is.null(errorList[[N]])) {
+      errorList[[N]] <- list(N = N,
+                             errores = c())
+    }
+    
+    # Se almacena en el campo N (hash) el vector de errores
+    # rep funciona como el índice ya que va de 1 a 10.
+    errorList[[N]]$errores[rep] = errores
+  }
+  
+  for(item in errorList) {
+    # Se calcula el error promedio, se transforma en string y se limita a dos cifras significativas
+    u <- format(round(mean(item$errores), 2), nsmall=2)
+    
+    text <- paste(item$N, u, sep="\t")
+    
+    cat(text, "\n")
   }
   
   return(res)
@@ -180,7 +204,7 @@ pos_process <- function() {
 ####################################################################################################
 # 
 # 
-run.experiment<- function()
+run.experiment <- function()
 {
   set.seed(1)
   data <- pre_process()
