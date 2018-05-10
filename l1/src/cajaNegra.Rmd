@@ -45,7 +45,7 @@ junto con la clasificación (SPAM/NO-SPAM) de cada mensaje.
 
 
 ```{r}
-setwd("src/") # configurar el directorio de trabajo en src
+# setwd("src/") # configurar el directorio de trabajo en src
 source("read-matrix.R") 
 m.train <- read_matrix(filename="../data/MATRIX.TRAIN",ocurrence=FALSE,sparse=FALSE) 
 # Acceso a componetes: m.train$tokens y m.train$matrix
@@ -69,6 +69,21 @@ La funcion ggplot() crea un sistema de coordenadas en donde es posible agregar n
 # quizas sea necesario instalar el paquete
 # install.packages("ggplot2")
 
+spam <- length(which(m.train$matrix$category=="SPAM"))
+nospam <- length(which(m.train$matrix$category=="NO-SPAM"))
+
+distspam<-(spam/nrow(m.train$matrix))*100
+distnospam <- (nospam/nrow(m.train$matrix))*100
+distribucion = c(distspam, distnospam)
+categorias <- c("spam", "no-spam")
+distdata = data.frame(distribucion, categorias)
+
+library(ggplot2)
+ggplot(data= distdata, aes(x=distdata$categorias, y=distdata$distribucion, fill="red"))
+  + geom_bar(stat="identity") 
+  + gtitle("Distribución de clases") 
+  + labs(x="Categorías", y ="Distribución(%)") 
+
 #ggplot(data=trainset)+
 #  geom_bar(aes(x= FALTA COLOCAR VARIABLE ,fill= FALTA COLOCAR VARIABLE )) 
 # en este caso estamos usando las propiedades visuales x y fill (relleno) 
@@ -80,11 +95,20 @@ La funcion ggplot() crea un sistema de coordenadas en donde es posible agregar n
 ```{r}
 #INSERTAR CODIGO AQUI
 
+rdospam <- trainset[which(m.train$matrix$category == "SPAM"), 1:(ncol(m.train$matrix)-1)]
+cantrepetespam <- sort(colSums(rdospam), decreasing = TRUE)
+rdoNospam <- trainset[which(m.train$matrix$category == "NO-SPAM"), 1:(ncol(m.train$matrix)-1)]
+cantrepetNoSpam <- sort(colSums(rdoNospam), decreasing = TRUE)
+
+grafspam <- data.frame(names(cantrepetespam)[1:7], cantrepetespam[1:7])
+grafnospam <- data.frame(names(cantrepetNoSpam)[1:7], cantrepetNoSpam[1:7])
+ggplot(data= grafspam) + 
+  geom_bar(aes(x=grafspam$names.cantrepetespam., y= grafspam$cantrepetespam), stat="identity", fill="red",alpha=0.3) + 
+  ggtitle("Distribución") + 
+  labs(x="Palabra",y="Frecuencia")+
+  geom_bar(aes(x=grafnospam$names.cantrepetNoSpam., y= grafnospam$cantrepetNoSpam), stat="identity", fill="blue",alpha=0.3)
+
 ```
-
-
-
-
 
 ### Punto (A) 
 Vamos a utilizar árboles de decisión para aprender un clasificador de spam usando la matriz
@@ -112,11 +136,6 @@ names(result) <- c("TRUE-VALUE", "PREDICTION", "CORRECT?")
 
 ### Punto (B) 
 Dado los resultados obtenidos en (A) y indique como calcularía la performance del clasificador.
-
-
-
-
-
 
 ### Punto (C) 
 Ahora haremos uso del vector ```m.train$tokens``` para averiguar los índices de los tokens spam,
@@ -146,12 +165,6 @@ names(testset) <- c(m.test$tokens,"category")
 
 ###Punto (E) 
 Razone sobre la diferencia entre los resultados obtenidos en (B), (C), y (D). ¿Puede explicar que ha sucedido?
-
-
-
-
-
-
 
 ### Punto (F)
 Vamos a utilizar Naïve Bayes para aprender un clasificador de spam usando la matriz documento-
