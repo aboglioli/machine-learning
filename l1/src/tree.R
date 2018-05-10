@@ -70,13 +70,13 @@ plot.tree <- function(tree, nodeIndex=1, ctab="  ", level=0, value=NULL) {
     node <- tree$nodes[[nodeIndex]]
     if (nodeIndex == 1) {            
       value <- "[ROOT]"      
-    }else{
+    } else {
       value <- paste("[Value: ",value,"]",sep="")
     }
     # is a leaf?
-    if (is.null(node$name)){
+    if (is.null(node$name)) {
       values <- c()
-    }else{
+     }else {
       values <- names(node$branches)
     }
     

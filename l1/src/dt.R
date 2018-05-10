@@ -51,67 +51,61 @@ best.attribute <- function(examples, attributes, target, labels, splitInf=FALSE)
   # ADD YOUR CODE HERE
   #
   ########
-  dataTarget <- examples[,target]
-  labelsTarget <- unique(examples[,target])
-  canTotal <- length(dataTarget)
-  cants <- matrix(data= 0, nrow = length(labelsTarget),ncol=2)
+  targetValues <- examples[,target]
+  cantTotal <- nrow(examples)
+  cants <- matrix(data = 0, nrow = length(labels), ncol=2)
   
-  for(i in 1:length(labelsTarget)){
-    cants[i,1] <- labelsTarget[i]
-    cants[i,2] <- length(which(examples[,target] == labelsTarget[i]))
+  values <- c()
+  
+  for(i in 1:length(labels)){
+    values[i] <- sum(targetValues == labels[i])
   }
-  entropia.target <- entropia(as.numeric(cants[,2]))
-  # print(entropia.target)
   
-  gain.matrix <- matrix(data=0, nrow=length(attributes),ncol =2)
+  entropia <- entropia(as.numeric(values))
+  
+  ganancia <- matrix(data=0, nrow=length(attributes),ncol =2)
   
   #atributos
-  
   for(i in 1:length(attributes)){
-    
-    data <- matrix(data=0,nrow = length(dataTarget), ncol= 2)
+    data <- matrix(data = 0, nrow  = cantTotal, ncol = 2)
     data[,1] <- examples[,attributes[i]]
-    data[,2] <- dataTarget
+    data[,2] <- targetValues
     
     etiqueta <- unique(data[,1])
     entropias.vector <- c()
     
-    for(j in 1:length(etiqueta)){
-      dataEtiqueta <- matrix(data=0, nrow= length(data[which(data[,1] == etiqueta[j])]), ncol=2)
-      dataEtiqueta[,1] <- data[which(data[,1] == etiqueta[j]),1]
-      dataEtiqueta[,2] <- data[which(data[,1] == etiqueta[j]),2] #cortamos la tabla por etiqueta. Por ej: Sunny
-      # print("DataEtiqueta")
-      # print(dataEtiqueta)
+    for(j in 1:length(etiqueta)) {
+      dataEtiqueta <- matrix(data = 0, 
+                             nrow = sum(data[,1] == etiqueta[j]), # cuenta ocurrencias
+                             ncol = 2)
+      dataEtiqueta[,1] <- data[,1][data[,1] == etiqueta[j]]
+      dataEtiqueta[,2] <- data[,2][data[,1] == etiqueta[j]]
+      
       cantDataEtiqueta <- nrow(dataEtiqueta) # cantidad de valores con la etiqueta 
       p <- c()
       
-      for(k in 1:length(labelsTarget)){
-        if(nrow(dataEtiqueta)>1){
-          pm <- length(dataEtiqueta[which(dataEtiqueta[,2] == labelsTarget[k])]) #cuenta cuantos si/no hay
-        }else{
+      for(k in 1:length(labels)) {
+        if(nrow(dataEtiqueta) > 1) {
+          pm <- length(dataEtiqueta[which(dataEtiqueta[,2] == labels[k])]) #cuenta cuantos si/no hay
+        } else {
           pm <- 1
         }
         
         p <- c(p,pm) #los guarda en un arreglo que es el que va a la entropia
-        #print(paste("P",p))
       }
       
       entropia.attribute <- entropia(p)
-      entropias.vector <- c(entropias.vector,(cantDataEtiqueta/canTotal) * entropia.attribute)
-      
-      #print(dataEtiqueta[j,1])
-      #print(entropia.attribute)
-      #print(entropias.vector)
+      entropias.vector <- c(entropias.vector,(cantDataEtiqueta/cantTotal) * entropia.attribute)
     }
     
-    gain.matrix[i,1] <- attributes[i]
-    gain.matrix[i,2] <- entropia.target - sum(entropias.vector)
+    ganancia[i,1] <- attributes[i]
+    ganancia[i,2] <- entropia - sum(entropias.vector)
     
   }
   
-  #print(gain.matrix)
-  best.att <- gain.matrix[order(gain.matrix[,2],decreasing = TRUE)[1],1]
-  gan <- gain.matrix[order(gain.matrix[,2], decreasing = TRUE)[1],2]
+  #print(ganancia)
+  best.att <- ganancia[order(ganancia[,2],decreasing = TRUE)[1],1]
+  gan <- ganancia[order(ganancia[,2], decreasing = TRUE)[1],2]
   
   # Mostrar nombre del mejor atributo best.att y su valor de ganancia (gan)
   # print(c('mejor attributo:',best.att,gan))
@@ -172,7 +166,8 @@ most.common.value <- function(examples, target) {
 # obtenido de la iteración con id3, y 'tree' que es el árbol construido.
 id3 <- function(examples, target, attributes, labels, tree) {
   
-  examples <- matrix(examples,ncol=(length(attributes)+1),
+  examples <- matrix(examples,
+                     ncol = length(attributes) + 1,
                      dimnames=list(rownames=NULL,colnames=c(attributes,target)))
   
   #se crea una estructura vacía de nodo
@@ -181,7 +176,6 @@ id3 <- function(examples, target, attributes, labels, tree) {
   # ¿Tienen todos los ejemplos la misma etiqueta?
   for (i in 1:length(labels))
     if (all(examples[,target] == labels[i])) {
-      
       class <- labels[i]
       root <- new.leaf(class)
       
@@ -191,8 +185,7 @@ id3 <- function(examples, target, attributes, labels, tree) {
     }
   
   # ¿Se encuentra vacío el conjunto de los atributos?
-  if (length(attributes)==0) {
-    
+  if (length(attributes) == 0) {
     class <- most.common.value(examples, target)
     root <- new.leaf(class)
     
@@ -203,15 +196,13 @@ id3 <- function(examples, target, attributes, labels, tree) {
   
   attribute <- best.attribute(examples, attributes, target, labels)
   
-  
   root <- new.node(attribute, VALUES[[attribute]])
   
   if (is.null(tree)) tree <- new.tree(root)
   cat("attribute selected: ", attribute, "\n")
   
   
-  for (i in 1:length(VALUES[[attribute]])){
-    
+  for (i in 1:length(VALUES[[attribute]])) {
     #Add a new tree branch below Root, corresponding to the test A = vi
     branchId <- root$branches[[i]]
     
@@ -226,11 +217,11 @@ id3 <- function(examples, target, attributes, labels, tree) {
     examplesi <- examples[fila,]
     
     #examplesi as 1 row?
-    if(length(examplesi)==(length(attributes)+1)){
+    if(length(examplesi) == (length(attributes) + 1)) {
       examplesi <- matrix(examplesi,ncol=(length(attributes)+1),dimnames=list(rownames=NULL,colnames=c(attributes,target)))
     }
     
-    if (is.null(examplesi) | nrow(examplesi)==0){
+    if (is.null(examplesi) | nrow(examplesi) == 0) {
       # Add a leaf node with label = most common value of target in examples
       
       #######
@@ -244,7 +235,6 @@ id3 <- function(examples, target, attributes, labels, tree) {
       tree <- add.subtree(tree, leaf, branchId)
       
     } else {
-      
       # <-- ES UNA MATRIX. Es un subconjunto de Examplesi (ver seudocódigo en Mitchel.)
       exam <- NULL
       
@@ -365,10 +355,12 @@ load.data <- function(path.data="../data/", name='tennis.csv') {
     path <- paste(path.data, name, sep="")
     examples <- read.csv(path, header=TRUE, stringsAsFactors=FALSE)
     examples <- as.matrix(examples)
-    attributes <- as.vector(dimnames(examples)[[2]])
-    attributes <- attributes[-ncol(examples)]
-    etiquetas <- unique(examples[,ncol(examples)])
-    target <- (colnames(examples))[length(colnames(examples))]
+
+    cols <- colnames(examples)
+    cols.length <- ncol(examples)
+    attributes <- cols[-cols.length]
+    etiquetas <- unique(examples[,cols.length])
+    target <- cols[length(cols)]
     
     ## las siguientes líneas guardan por c/atributo sus correspondientes valores
     for (i in 1:length(attributes))
@@ -380,13 +372,15 @@ load.data <- function(path.data="../data/", name='tennis.csv') {
     # ADD YOUR CODE HERE
     #
     ########
-    path <- paste(path.data,name,sep="")
-    examples <- read.csv(path,header=TRUE, stringsAsFactors=FALSE)
+    path <- paste(path.data, name, sep="")
+    examples <- read.csv(path, header=TRUE, stringsAsFactors=FALSE)
     examples <- as.matrix(examples)
-    attributes <- as.vector(dimnames(examples)[[2]])
-    attributes <- attributes[-ncol(examples)] #quita la última columna, porque tiene los true o false
-    etiquetas <- unique(examples[,ncol(examples)]) #obtenemos "no" y "yes", parametros para las etiquetas
-    target <- (colnames(examples))[length(colnames(examples))] #devuleve playtennis
+    
+    cols <- colnames(examples)
+    cols.length <- ncol(examples)
+    attributes <- cols[-cols.length]
+    etiquetas <- unique(examples[,cols.length])
+    target <- cols[length(cols)]
     
     ## las siguientes líneas guardan por c/atributo sus correspondientes valores
     for (i in 1:length(attributes))
@@ -398,21 +392,26 @@ load.data <- function(path.data="../data/", name='tennis.csv') {
     # ADD YOUR CODE HERE
     #
     ########
-    path <- paste(path.data,name,sep="")
-    examples <- read.csv(path,header=TRUE, stringsAsFactors=FALSE)
+    path <- paste(path.data, name, sep="")
+    examples <- read.csv(path, header=TRUE, stringsAsFactors=FALSE)
     examples <- as.matrix(examples)
-    attributes <- as.vector(dimnames(examples)[[2]])
-    attributes <- attributes[-ncol(examples)] #quita la última columna, porque tiene los true o false
-    etiquetas <- unique(examples[,ncol(examples)]) #obtenemos "no" y "yes", parametros para las etiquetas
-    target <- (colnames(examples))[length(colnames(examples))] #devuleve playtennis
     
-    ## las siguientes lineas guardan por c/atributo sus correspondientes valores
+    cols <- colnames(examples)
+    cols.length <- ncol(examples)
+    attributes <- cols[-cols.length]
+    etiquetas <- unique(examples[,cols.length])
+    target <- cols[length(cols)]
+    
+    ## las siguientes líneas guardan por c/atributo sus correspondientes valores
     for (i in 1:length(attributes))
       VALUES[[attributes[i]]] <<- unique(examples[,attributes[i]])
     
   } else stop("ERROR Debe brindar un dataset. Verifique argumentos path.data y name")
   
-  return (list(target.attribute=target, labels = etiquetas, examples=examples,attributes=attributes))
+  return (list(target.attribute = target,
+               labels = etiquetas,
+               examples = examples,
+               attributes = attributes))
 }
 
 run.tree.experiment <- function() {
