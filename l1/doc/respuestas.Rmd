@@ -9,13 +9,11 @@ output: html_notebook
 
 Implementar **Gain Information** para el caso en el que existan *missing values* requiere de alguna estrategia para reemplazar dichos valores. Aquí se detallan tres posibles soluciones:
 
-Se puede asignar a dichas variables el valor más común del conjunto de entrenamiento en el nodo *n*.
+Se puede asignar a dichas variables el valor más común del conjunto de entrenamiento.
 
-Una posibilidad más compleja es asignar una probabilidad a cada uno de los posibles valores en lugar de simplemente asignar el valor más común.
+Una posibilidad más compleja es asignar una probabilidad a cada uno de los posibles valores en lugar de simplemente asignar el valor más común, basándose en las frecuencais observadas de los valores del ejemplo.
 
-Otra opción es por ejemplo usar la media cuando lso valores son numéricos, o la moda para los casos en que los valores sean nominales.
-
-A better option is to utilize the approach that's used by ID3's more popular extension: the C4.5 algorithm. You can distribute missing instances across all children node, and assign weights that are proportional to the number of instances in each child node.
+Otra opción es por ejemplo usar la media cuando los valores son numéricos, o la moda para los casos en que los valores sean nominales.
 
 Una mejor opción es utilizar la estrategia que es usada por las extensiones más populares de ID3: el algoritmo **C4.4**. Permite distribuir las instancias faltantes en todos los nodos hijos, y asignar pesos que son proporcionales al número de instancais de cada nodo hijo.
 

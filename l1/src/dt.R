@@ -74,7 +74,7 @@ best.attribute <- function(examples, attributes, target, labels, splitInf=FALSE)
     data[,2] <- targetValues
     
     nodos <- unique(data[,1])
-    entropias.vector <- c()
+    entropias <- c()
     
     for(j in 1:length(nodos)) {
       nodo <- nodos[j]
@@ -98,12 +98,11 @@ best.attribute <- function(examples, attributes, target, labels, splitInf=FALSE)
         p <- c(p,pm) #los guarda en un arreglo que es el que va a la entropia
       }
       
-      entropia.attribute <- entropia(p)
-      entropias.vector <- c(entropias.vector, (nodoTotal / cantTotal) * entropia.attribute)
+      entropias <- c(entropias, (nodoTotal / cantTotal) * entropia(p))
     }
     
     ganancias[i,1] <- attributes[i]
-    ganancias[i,2] <- entropia - sum(entropias.vector)
+    ganancias[i,2] <- entropia - sum(entropias)
   }
   
   best.att <- ganancias[order(ganancias[,2], decreasing = TRUE)][1]
@@ -164,7 +163,6 @@ most.common.value <- function(examples, target) {
 # Esta función regresa una lista con dos componentes: 'root', que es la variable nodo
 # obtenido de la iteración con id3, y 'tree' que es el árbol construido.
 id3 <- function(examples, target, attributes, labels, tree) {
-  
   examples <- matrix(examples,
                      ncol = length(attributes) + 1,
                      dimnames=list(rownames=NULL,colnames=c(attributes,target)))
@@ -409,9 +407,16 @@ load.data <- function(path.data="../data/", name='tennis.csv') {
   } else if(startsWith(name, "MATRIX")) {
     source("read-matrix.R") 
     path <- paste(path.data, name, sep="")
-    examples <- read_matrix(filename = path, ocurrence = FALSE, sparse = FALSE) 
-    attributes <- examples$tokens
-    attributes <- attributes[-examples$matrix$category]
+    
+    m.train <- read_matrix(filename = path, ocurrence = FALSE, sparse = FALSE)
+    
+    examples <- as.matrix(m.train$matrix)
+    attributes <- as.vector(dimnames(examples)[[2]])
+    attributes <- attributes[-ncol(examples)]
+    etiquetas <- unique(examples[,ncol(examples)])
+    target <- (colnames(examples))[length(colnames(examples))]
+    for(i in 1:length(attributes))
+      VALUES[[attributes[i]]] <<- unique(examples[,attributes[i]])
   } else stop("ERROR Debe brindar un dataset. Verifique argumentos path.data y name")
   
   return (list(target.attribute = target,
@@ -425,7 +430,7 @@ run.tree.experiment <- function() {
   # path.data : donde se encuentra el directorio data de este laboratorio 1
   # name: nombre del dataset incluida su extensión de archivo, ej: restaurant.csv
   # 
-  dataset <- load.data(path.data="../data/", name="tennis.csv") 
+  dataset <- load.data(path.data = "../data/", name = "tennis.csv") 
   ## Para ver los elementos de dataset, 
   ## descomente las siguientes líneas antes de ejecutar
   # print(dataset$target)
@@ -433,7 +438,11 @@ run.tree.experiment <- function() {
   # print(dataset$attributes)
   
   # 2- CONSTRUCCIÓN DEL ÁRBOL USANDO ID3
-  result <- id3(dataset$examples, dataset$target.attribute, dataset$attributes,dataset$labels,NULL)
+  result <- id3(dataset$examples,
+                dataset$target.attribute,
+                dataset$attributes,
+                dataset$labels,
+                NULL)
   
   # La función plot.tree permite ver el árbol graficado
   plot.tree(result)
@@ -444,5 +453,5 @@ run.tree.experiment <- function() {
   # El ejemplo dependerá del dataset con el que esté trabajando
   # Muestre en consola el ejemplo a clasificar y el resultado.
   example <- c("Overcast","Mild","Normal","Strong")
-  classify.example(tree=result, example=example)
+  classify.example(tree = result, example = example)
 }
