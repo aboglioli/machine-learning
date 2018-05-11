@@ -63,30 +63,34 @@ best.attribute <- function(examples, attributes, target, labels, splitInf=FALSE)
   
   entropia <- entropia(as.numeric(values))
   
-  ganancia <- matrix(data=0, nrow=length(attributes),ncol =2)
+  # Matriz con las ganancias de cada columna
+  ganancias <- matrix(data = 0, 
+                      nrow = length(attributes),
+                      ncol = 2)
   
-  #atributos
   for(i in 1:length(attributes)){
     data <- matrix(data = 0, nrow  = cantTotal, ncol = 2)
     data[,1] <- examples[,attributes[i]]
     data[,2] <- targetValues
     
-    etiqueta <- unique(data[,1])
+    nodos <- unique(data[,1])
     entropias.vector <- c()
     
-    for(j in 1:length(etiqueta)) {
-      dataEtiqueta <- matrix(data = 0, 
-                             nrow = sum(data[,1] == etiqueta[j]), # cuenta ocurrencias
-                             ncol = 2)
-      dataEtiqueta[,1] <- data[,1][data[,1] == etiqueta[j]]
-      dataEtiqueta[,2] <- data[,2][data[,1] == etiqueta[j]]
+    for(j in 1:length(nodos)) {
+      nodo <- nodos[j]
       
-      cantDataEtiqueta <- nrow(dataEtiqueta) # cantidad de valores con la etiqueta 
+      nodoData <- matrix(data = 0, 
+                         nrow = sum(data[,1] == nodo),
+                         ncol = 2)
+      nodoData[,1] <- data[,1][data[,1] == nodo]
+      nodoData[,2] <- data[,2][data[,1] == nodo]
+      
+      nodoTotal <- nrow(nodoData) # cantidad de valores con la etiqueta 
       p <- c()
       
       for(k in 1:length(labels)) {
-        if(nrow(dataEtiqueta) > 1) {
-          pm <- length(dataEtiqueta[which(dataEtiqueta[,2] == labels[k])]) #cuenta cuantos si/no hay
+        if(nrow(nodoData) > 1) {
+          pm <- sum(nodoData[,2] == labels[k])
         } else {
           pm <- 1
         }
@@ -95,20 +99,15 @@ best.attribute <- function(examples, attributes, target, labels, splitInf=FALSE)
       }
       
       entropia.attribute <- entropia(p)
-      entropias.vector <- c(entropias.vector,(cantDataEtiqueta/cantTotal) * entropia.attribute)
+      entropias.vector <- c(entropias.vector, (nodoTotal / cantTotal) * entropia.attribute)
     }
     
-    ganancia[i,1] <- attributes[i]
-    ganancia[i,2] <- entropia - sum(entropias.vector)
-    
+    ganancias[i,1] <- attributes[i]
+    ganancias[i,2] <- entropia - sum(entropias.vector)
   }
   
-  #print(ganancia)
-  best.att <- ganancia[order(ganancia[,2],decreasing = TRUE)[1],1]
-  gan <- ganancia[order(ganancia[,2], decreasing = TRUE)[1],2]
-  
-  # Mostrar nombre del mejor atributo best.att y su valor de ganancia (gan)
-  # print(c('mejor attributo:',best.att,gan))
+  best.att <- ganancias[order(ganancias[,2], decreasing = TRUE)][1]
+  gan <- ganancias[order(ganancias[,2], decreasing = TRUE), 2][1]
   
   return(best.att)
 }
@@ -133,7 +132,7 @@ most.common.value <- function(examples, target) {
   #
   ########
   labels <- unique(examples[,target])
-  cants <- matrix(data = 0, nrow = length(labels), ncol=2)
+  cants <- matrix(data = 0, nrow = length(labels), ncol = 2)
   
   for(i in 1:length(labels)){
     cants[i,1] <- labels[i]
@@ -142,7 +141,7 @@ most.common.value <- function(examples, target) {
   
   value <- cants[order(cants[,2], decreasing = TRUE)[1],1]
   
-  print(c('Valor mas commun de',target,value))
+  print(c('Valor mas comun de',target,value))
   
   return(value)
 }
@@ -358,8 +357,10 @@ load.data <- function(path.data="../data/", name='tennis.csv') {
 
     cols <- colnames(examples)
     cols.length <- ncol(examples)
+    # Todas las columnas excepto la última
     attributes <- cols[-cols.length]
-    etiquetas <- unique(examples[,cols.length])
+    etiquetas <- unique(examples[,cols.length]) # Yes, no
+    # Nombre de última columna
     target <- cols[length(cols)]
     
     ## las siguientes líneas guardan por c/atributo sus correspondientes valores
@@ -405,7 +406,12 @@ load.data <- function(path.data="../data/", name='tennis.csv') {
     ## las siguientes líneas guardan por c/atributo sus correspondientes valores
     for (i in 1:length(attributes))
       VALUES[[attributes[i]]] <<- unique(examples[,attributes[i]])
-    
+  } else if(startsWith(name, "MATRIX")) {
+    source("read-matrix.R") 
+    path <- paste(path.data, name, sep="")
+    examples <- read_matrix(filename = path, ocurrence = FALSE, sparse = FALSE) 
+    attributes <- examples$tokens
+    attributes <- attributes[-examples$matrix$category]
   } else stop("ERROR Debe brindar un dataset. Verifique argumentos path.data y name")
   
   return (list(target.attribute = target,
@@ -415,7 +421,6 @@ load.data <- function(path.data="../data/", name='tennis.csv') {
 }
 
 run.tree.experiment <- function() {
-  
   # 1- CARGA DE DATOS
   # path.data : donde se encuentra el directorio data de este laboratorio 1
   # name: nombre del dataset incluida su extensión de archivo, ej: restaurant.csv

@@ -1,0 +1,62 @@
+---
+title: "Respuestas"
+output: html_notebook
+---
+
+# Laboratorio 1
+
+### Ejercicio 3
+
+Implementar **Gain Information** para el caso en el que existan *missing values* requiere de alguna estrategia para reemplazar dichos valores. Aquí se detallan tres posibles soluciones:
+
+Se puede asignar a dichas variables el valor más común del conjunto de entrenamiento en el nodo *n*.
+
+Una posibilidad más compleja es asignar una probabilidad a cada uno de los posibles valores en lugar de simplemente asignar el valor más común.
+
+Otra opción es por ejemplo usar la media cuando lso valores son numéricos, o la moda para los casos en que los valores sean nominales.
+
+A better option is to utilize the approach that's used by ID3's more popular extension: the C4.5 algorithm. You can distribute missing instances across all children node, and assign weights that are proportional to the number of instances in each child node.
+
+Una mejor opción es utilizar la estrategia que es usada por las extensiones más populares de ID3: el algoritmo **C4.4**. Permite distribuir las instancias faltantes en todos los nodos hijos, y asignar pesos que son proporcionales al número de instancais de cada nodo hijo.
+
+#### C4.5
+C4.5 construye árboles de decisión desde un grupo de datos de entrenamiento de la misma forma en que lo hace ID3, usando el concepto de *entropía de información*. Los datos de entrenamiento son un grupo `S = s1, s2, ...` de ejemplos ya clasificados. Cada ejemplo `si = x1, x2, ...` es un vector donde `x1, x2, ...` representan los atributos o características del ejemplo. Los datos de entrenamiento son aumentados con un vector `C = c1, c2, ...` donde `c1, c2, ...` representan la clase a la que pertenece cada muestra.
+
+En cada nodo del árbol, **C4.5** elige un atributo de los datos que más eficazmente dividen el conjunto de muestras en subconjuntos enriquecidos en una clase u otra. Su criterio es el normalizado para ganancia de información (diferencia de entropía) que resulta en la elección de un atributo para dividir los datos. El atributo con la mayor ganancia de información normalizada se elige como parámetro de decisión. El algoritmo C4.5 divide recursivamente en sublistas más pequeñas.
+
+Este algoritmo tiene unos pocos casos base.
+
+- Todas las muestras en la lista pertenecen a la misma clase. Cuando esto sucede, simplemente crea un nodo de hoja para el árbol de decisión diciendo que elija esa clase.
+- Ninguna de las características proporciona ninguna ganancia de información. En este caso, C4.5 crea un nodo de decisión más arriba del árbol utilizando el valor esperado de la clase.
+- Instancia de la clase previamente no vista encontrada. Una vez más, C4.5 crea un nodo de decisión más arriba en el árbol con el valor esperado.
+
+Entre las mejoras de este algoritmo, se encuentran:
+
+- Manejo de ambos atributos continuos y discretos - A fin de manejar atributos continuos, C4.5 crea un umbral y luego se divide la lista en aquellos cuyo valor de atributo es superior al umbral y los que son menores o iguales a él.3
+- Manejo de los datos de formación con valores de **atributos faltantes** - C4.5 permite valores de los atributos para ser marcado como *?* para faltantes. Los valores faltantes de los atributos simplemente no se usa en los cálculos de la ganancia y la entropía.
+- Manejo de atributos con costos diferentes.
+- Podando árboles después de la creación - C4.5 se remonta a través del árbol una vez que ha sido creado e intenta eliminar las ramas que no ayudan, reemplazándolos con los nodos de hoja.
+
+#### Ejemplo
+Considerando `tennis.csv`, si el atributo *Outlook* tuviese valores faltantes, habría que encontrar algún valor por el cual reemplazarlos. Se buscarán los valores más repetidos (usando la moda), y así se encontraría que *Sunny* es el posible valor por el que reemplazar los faltantes.
+
+En `dt.R` se utiliza la estrategia del valor más común:
+```r
+most.common.value <- function(examples, target) {
+  value <- ""
+
+  labels <- unique(examples[,target])
+  cants <- matrix(data = 0, nrow = length(labels), ncol = 2)
+  
+  for(i in 1:length(labels)){
+    cants[i,1] <- labels[i]
+    cants[i,2] <- length(which(examples[,target] == labels[i]))
+  }
+  
+  value <- cants[order(cants[,2], decreasing = TRUE)[1],1]
+  
+  print(c('Valor mas comun de',target,value))
+  
+  return(value)
+}
+```
