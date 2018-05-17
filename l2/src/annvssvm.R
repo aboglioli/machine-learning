@@ -76,6 +76,8 @@ accuracy <- function(true.pos, true.neg, false.pos, false.neg) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  res <- (true.pos + true.neg) / (true.pos + true.neg + false.pos + false.neg)
 
   return(res)
 }
@@ -88,6 +90,8 @@ precision <- function(true.pos, false.pos) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  res <- true.pos / (true.pos + false.pos)
 
   return(res)
 }
@@ -100,6 +104,8 @@ recall <- function(true.pos, false.neg) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  res <- true.pos / (true.pos + false.neg)
 
   return(res)
 }
@@ -112,6 +118,11 @@ f.measure <- function(true.pos, true.neg, false.pos, false.neg) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  p <- precision(true.pos, false.pos)
+  r <- recall(true.pos, false.neg)
+  
+  res <- 2 * ((p * r) / (p + r))
 
   return(res)
 }
@@ -137,6 +148,7 @@ run.annvssvm <- function()
   # ADD YOUR CODE HERE
   #
   ########
+  predicted.by.ann <- nnet(formula = class~., data = , size = 3, MaxNWts = 3000)
   
   #matriz de confusión para los resultados de ANN
   mat_ann <- confusion.matrix(test.set$class, predicted.by.ann)
