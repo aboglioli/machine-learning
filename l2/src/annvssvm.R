@@ -148,10 +148,11 @@ run.annvssvm <- function()
   # ADD YOUR CODE HERE
   #
   ########
-  predicted.by.ann <- nnet(formula = class~., data = , size = 3, MaxNWts = 3000)
+  predicted.by.ann <- nnet(formula = class ~ ., data = train.set, size = 3, MaxNWts = 3000)
+  res <- predict(predicted.by.ann, test.set, type="class")
   
   #matriz de confusión para los resultados de ANN
-  mat_ann <- confusion.matrix(test.set$class, predicted.by.ann)
+  mat_ann <- confusion.matrix(test.set$class, res)
   
   print(mat_ann)
   
