@@ -62,6 +62,7 @@ best.attribute <-
     
     values <- c()
     
+    
     for (i in 1:length(labels)) {
       values[i] <- sum(targetValues == labels[i])
     }
@@ -292,7 +293,7 @@ classify.example <- function(tree = NULL, example = NULL)
   # ADD YOUR CODE HERE
   #
   ########
-  parent <- NULL
+  parent <- tree$nodes[[1]]$parentId
   branches <- tree$nodes[[1]]$branches
   
   if (is.null(parent)) {
@@ -318,13 +319,13 @@ classify.example <- function(tree = NULL, example = NULL)
   
   # Si no es la raiz tengo que recorrer el resto del arbol
   # Itero sobre los nodos del arbol
-  for (f in 2:tree$nodesCount) {
-    # Es la raíz del subasrbol?
-    if (tree$nodes[[f]]$parentId == parent) {
+  for (v in 2:tree$nodesCount) {
+    # Es la raíz del subarbol?
+    if (tree$nodes[[v]]$parentId == parent) {
       # Es una hoja?
-      if (!is.null(tree$nodes[[f]]$label)) {
+      if (!is.null(tree$nodes[[v]]$label)) {
         # print(paste("Resultado: ", tree$nodes[[f]]$label))
-        label <- tree$nodes[[f]]$label
+        label <- tree$nodes[[v]]$label
         break
       }
       
@@ -333,10 +334,10 @@ classify.example <- function(tree = NULL, example = NULL)
       
       for (i in 1:length(example)) {
         # Verifico si algun valor del ejemplo se corresponde con algun branch para seguir recorriendo
-        if (any(names(tree$nodes[[f]]$branches) == example[i])) {
+        if (any(names(tree$nodes[[v]]$branches) == example[i])) {
           #Guardo el parentId
           parent <-
-            tree$nodes[[f]]$branches[which(example[i] == names(tree$nodes[[f]]$branches))]
+            tree$nodes[[v]]$branches[which(example[i] == names(tree$nodes[[v]]$branches))]
           break
         }
       }
@@ -432,12 +433,13 @@ load.data <- function(path.data = "../data/", name = 'tennis.csv') {
                   sparse = FALSE)
     
     examples <- as.matrix(m.train$matrix)
-    attributes <- as.vector(dimnames(examples)[[2]])
-    attributes <- attributes[-ncol(examples)]
+    attributes <- m.train$tokens
+    # attributes <- as.vector(dimnames(examples)[[2]])
+    # attributes <- attributes[-ncol(examples)]
     etiquetas <- unique(examples[, ncol(examples)])
     target <- (colnames(examples))[length(colnames(examples))]
     for (i in 1:length(attributes))
-      VALUES[[attributes[i]]] <<- unique(examples[, attributes[i]])
+      VALUES[[attributes[i]]] <<- unique(examples[, i])
   } else
     stop("ERROR Debe brindar un dataset. Verifique argumentos path.data y name")
   
@@ -456,7 +458,8 @@ run.tree.experiment <- function() {
   # path.data : donde se encuentra el directorio data de este laboratorio 1
   # name: nombre del dataset incluida su extensión de archivo, ej: restaurant.csv
   #
-  dataset <- load.data(path.data = "../data/", name = "tennis.csv")
+  # dataset <- load.data(path.data = "../data/", name = "tennis.csv")
+  dataset <- load.data(path.data = "../data/", name = "MATRIX.TRAIN.50")
   ## Para ver los elementos de dataset,
   ## descomente las siguientes líneas antes de ejecutar
   # print(dataset$target)
