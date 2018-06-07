@@ -69,6 +69,15 @@ svm.kfold <- function(gammas,costs,data,k)
         # ADD YOUR CODE HERE
         #
         ########
+        index <- validate.set.size * (i-1) + 1
+        range <- index:(validate.set.size * i)
+        train.set <- data[-range,]
+        test.set <- data[range,]
+        
+        predicted <- svm(formula = class ~ ., data = train.set, gamma = gamma, cost = cost)
+        res <- predict(predicted, test.set)
+        
+        print(res)
       }
       
       accuracy.avg <- sum.accuracy / k
