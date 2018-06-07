@@ -21,6 +21,8 @@ true.positives <- function(cm, k) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  res <- cm[k, k]
 
   res
 }
@@ -35,8 +37,10 @@ true.negatives <- function(cm, k) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  res <- cm[-k, -k]
 
-  res
+  sum(res)
 }
 
 # cm is the confusion matrix that is got by the method confusion.matrix()
@@ -49,8 +53,10 @@ false.positives <- function(cm, k) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  res <- cm[-k, k]
 
-  res
+  sum(res)
 }
 
 # cm is the confusion matrix that is got by the method confusion.matrix()
@@ -63,8 +69,10 @@ false.negatives <- function(cm, k) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  res <- cm[k, -k]
 
-  res
+  sum(res)
 }
 
 
@@ -148,6 +156,9 @@ run.annvssvm <- function()
   # ADD YOUR CODE HERE
   #
   ########
+  
+  # ANN
+  print("=== ANN ===")
   predicted.by.ann <- nnet(formula = class ~ ., data = train.set, size = 3, MaxNWts = 3000)
   res <- predict(predicted.by.ann, test.set, type="class")
   
@@ -189,6 +200,40 @@ run.annvssvm <- function()
   #
   ########
   
-  mat_ann
+  # SVM
+  cat("\n=== SVM ===")
+  predicted.by.svm <- svm(formula = class ~ ., data = train.set)
+  res <- predict(predicted.by.svm, test.set)
+  
+  #matriz de confusión para los resultados de ANN
+  mat_svm <- confusion.matrix(test.set$class, res)
+  
+  print(mat_svm)
+  
+  levs <- colnames(mat_svm) #lista de labels/target o "niveles" de clasificación
+  
+  #iteramos para mostrar los resultados (accuracy,recall,precision,fmeasure,etc)
+  #de la clasificación en cada clase
+  #imprimimos al final los resultados
+  for (k in 1:length(levs)){
+    
+    tp_svm <- true.positives(mat_svm, k)
+    tn_svm <- true.negatives(mat_svm, k)
+    fp_svm <- false.positives(mat_svm, k)
+    fn_svm <- false.negatives(mat_svm, k)
+    
+    acc_svm <- accuracy(tp_svm, tn_svm, fp_svm, fn_svm)
+    prec_svm <- precision(tp_svm,fp_svm)
+    rec_svm <- recall(tp_svm, fn_svm)
+    f_svm <- f.measure(tp_svm, tn_svm, fp_svm, fn_svm)
+    
+    cat("\nk = ",k, ", Class:", levs[k], " tp:",tp_svm," tn:",tn_svm," fp:",fp_svm,"  fn:", fn_svm,
+        "\nAccuracy: ", acc_svm,
+        "\nPrecision:", prec_svm,
+        "\nRecall    ", rec_svm,
+        "\nF-measure:", f_svm)
+  }
+  
+  mat_svm
 }
 
