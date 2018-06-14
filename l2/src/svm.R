@@ -1,4 +1,5 @@
 source("utils.R")
+source("annvssvm.R")
 
 deps <- c("utils.R")
 
@@ -77,7 +78,18 @@ svm.kfold <- function(gammas,costs,data,k)
         predicted <- svm(formula = class ~ ., data = train.set, gamma = gamma, cost = cost)
         res <- predict(predicted, test.set)
         
-        print(res)
+        mat <- confusion.matrix(test.set$class, res)
+        levs <- colnames(mat)
+        
+        for(j in 1:length(levs)) {
+          tp <- true.positives(mat, j)
+          tn <- true.negatives(mat, j)
+          fp <- false.positives(mat, j)
+          fn <- false.negatives(mat, j)
+          
+          acc <- accuracy(tp, tn, fp, fn)
+          sum.accuracy <- sum.accuracy + acc
+        }
       }
       
       accuracy.avg <- sum.accuracy / k

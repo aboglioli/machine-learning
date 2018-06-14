@@ -9,6 +9,8 @@ sigmoid <- function(x) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  res <- 1 / (1 + exp(-x))
 
   res
 }
@@ -34,6 +36,10 @@ softmax <- function(x, xk) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  denom <- sapply(x, function(x) { exp(x) })
+  
+  res <- xk / sum(denom)
 
   res
 }
