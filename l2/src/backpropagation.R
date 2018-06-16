@@ -24,6 +24,7 @@ dx.sigmoid <- function(x) {
   # ADD YOUR CODE HERE
   #
   ########
+  res <- exp(-x) / ((1 + exp(-x)) ^ 2)
 
   res
 }
@@ -37,9 +38,7 @@ softmax <- function(x, xk) {
   #
   ########
   
-  denom <- sapply(x, function(x) { exp(x) })
-  
-  res <- xk / sum(denom)
+  res <- exp(xk) / sum(exp(x))
 
   res
 }
@@ -52,6 +51,11 @@ dx.softmax <- function(x, xk) {
   # ADD YOUR CODE HERE
   #
   ########
+  
+  expX <- exp(x)
+  expXK <- exp(xk)
+  
+  res <- (((expXK * sum(expX))) * (expXK * sum(expX))) / ((expX ^ 2))
 
   res
 }
@@ -161,6 +165,19 @@ backprop <- function(train.set, formula, eta=0.05, n.out, n.hidden, eps=1e-3, ma
       # ADD YOUR CODE HERE
       #
       ########
+      for (j in 1:n.hidden) {
+        for (i in 1:length(x)) {
+          a.j[j] <- wji[j, i] * x[i]
+        }
+        z.j[j] <- sigmoid(a.j[j])
+      }
+      
+      for (k in 1:n.out) {
+        for (j in 1:n.hidden) {
+          a.k[k] <- wkj[k, j] * z.j[j]
+        }
+        z.k[k] <- softmax(a.k, a.k[k])
+      }
 
       # propagate the errors backward through the network
       #######
@@ -168,6 +185,16 @@ backprop <- function(train.set, formula, eta=0.05, n.out, n.hidden, eps=1e-3, ma
       # ADD YOUR CODE HERE
       #
       ########
+      # Apunte, pág. 14
+      fi.j <- t(as.matrix(z.j))
+      dk <- as.matrix(z.k - t)
+      dx.wkj <- dk %*% fi.j # derivada de E respecto de wkj
+      
+      dh <- dx.sigmoid(a.j)
+      fi.k <- t(as.matrix(wkj))
+      sum.wkj_dk <- fi.k %*% dk
+      dj <- dh * sum.wkj_dk
+      dx.wij <- dj %*% x
 
       # gradient descent
       #
@@ -180,6 +207,8 @@ backprop <- function(train.set, formula, eta=0.05, n.out, n.hidden, eps=1e-3, ma
       # ADD YOUR CODE HERE
       #
       ########
+      wji <- wji.old - eta * dx.wij
+      wkj <- wkj.old - eta * dx.wkj
 
       # compute the error of this iteration
       error <- error + error.function(z.k, t)
@@ -227,6 +256,11 @@ run.backpropagation.experiment<- function()
   # ADD YOUR CODE HERE
   #
   ########
+  plot(1:bp$iters,
+       bp$errors[-1],
+       xlab = "iteracion",
+       ylab = "error",
+       "l")
   
   ## utilizamos el conjunto de testeo para clasificar
   cla <- clasificar(test.set,formula=class ~ .,bp)
