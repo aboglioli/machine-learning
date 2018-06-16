@@ -76,20 +76,24 @@ svm.kfold <- function(gammas,costs,data,k)
         test.set <- data[range,]
         
         predicted <- svm(formula = class ~ ., data = train.set, gamma = gamma, cost = cost)
-        res <- predict(predicted, test.set)
+        res <- predict(predicted, test.set, type = "class")
         
         mat <- confusion.matrix(test.set$class, res)
         levs <- colnames(mat)
         
-        for(j in 1:length(levs)) {
-          tp <- true.positives(mat, j)
-          tn <- true.negatives(mat, j)
-          fp <- false.positives(mat, j)
-          fn <- false.negatives(mat, j)
-          
-          acc <- accuracy(tp, tn, fp, fn)
-          sum.accuracy <- sum.accuracy + acc
+        # Ver: https://www.researchgate.net/post/Can_someone_help_me_to_calculate_accuracy_sensitivity_of_a_66_confusion_matrix
+        # Ver: http://spatial-analyst.net/ILWIS/htm/ilwismen/confusion_matrix.htm
+        # TP y TN son iguales, la sumatoria de la diagonal de la matriz de confusión
+        # Utiliza "overall accuracy" en lugar de "average accuracy", ambos tienen el mismo efecto en este caso.
+        
+        tp <- 0
+        for (j in 1:length(levs)) {
+          tp <- tp + mat[levs[j], levs[j]]
         }
+        
+        acc <- tp / validate.set.size
+        
+        sum.accuracy <- sum.accuracy + acc
       }
       
       accuracy.avg <- sum.accuracy / k
