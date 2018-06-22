@@ -21,7 +21,7 @@ Utilizando sólo
 el asunto (subject) y el contenido de cada mensaje vamos a aprender a distinguir entre un mensaje **SPAM** y **NO-SPAM**. 
 
 Con el fin de obtener el texto de los correos electrónicos en una forma utilizable para los algoritmos, se ha 
-realizado un pre-procesamientode los mensajes. Se ha elaborado una lista de palabras del vocabulario 
+realizado un pre-procesamiento de los mensajes. Se ha elaborado una lista de palabras del vocabulario 
 de los mails (tokens) que contiene las palabras más relevantes.
 
 En el directorio data del laboratorio encontrará dos datasets: MATRIX.TRAIN, para usar como conjunto de 
@@ -69,18 +69,18 @@ La funcion ggplot() crea un sistema de coordenadas en donde es posible agregar n
 # quizas sea necesario instalar el paquete
 # install.packages("ggplot2")
 
-spam <- length(which(m.train$matrix$category=="SPAM"))
-nospam <- length(which(m.train$matrix$category=="NO-SPAM"))
+spam <- length(which(trainset$category == "SPAM"))
+nospam <- length(which(trainset$category == "NO-SPAM"))
 
-distspam<-(spam/nrow(m.train$matrix))
-distnospam <- (nospam/nrow(m.train$matrix))
+distspam <- (spam/nrow(trainset))
+distnospam <- (nospam/nrow(trainset))
 distribucion = c(distspam, distnospam)
 categorias <- c("spam", "no-spam")
 distdata = data.frame(distribucion, categorias)
 
 library(ggplot2)
-ggplot(data= distdata, aes(x=distdata$categorias, y=distdata$distribucion)) + 
-  geom_bar(stat="identity") + 
+ggplot(data = distdata, aes(x = distdata$categorias, y = distdata$distribucion)) + 
+  geom_bar(stat="identity", fill="red") + 
   ggtitle("Distribución de clases") + 
   labs(x="Categorías", y ="Distribución (%)") 
 
@@ -95,9 +95,11 @@ ggplot(data= distdata, aes(x=distdata$categorias, y=distdata$distribucion)) +
 ```{r}
 #INSERTAR CODIGO AQUI
 
-rdospam <- trainset[which(m.train$matrix$category == "SPAM"), 1:(ncol(m.train$matrix)-1)]
+cols <- ncol(trainset) - 1
+
+rdospam <- trainset[trainset$category == "SPAM", 1:cols]
 cantrepetespam <- sort(colSums(rdospam), decreasing = TRUE)
-rdoNospam <- trainset[which(m.train$matrix$category == "NO-SPAM"), 1:(ncol(m.train$matrix)-1)]
+rdoNospam <- trainset[trainset$category == "NO-SPAM", 1:cols]
 cantrepetNoSpam <- sort(colSums(rdoNospam), decreasing = TRUE)
 
 grafspam <- data.frame(names(cantrepetespam)[1:7], cantrepetespam[1:7])
@@ -138,6 +140,8 @@ names(result) <- c("TRUE-VALUE", "PREDICTION", "CORRECT?")
 
 ### Punto (B) 
 Dado los resultados obtenidos en (A) y indique como calcularía la performance del clasificador.
+
+Teniendo en cuenta el teorema de bayes, podriamos calcular la performance del clasificador.
 
 ### Punto (C) 
 Ahora haremos uso del vector ```m.train$tokens``` para averiguar los índices de los tokens spam,
