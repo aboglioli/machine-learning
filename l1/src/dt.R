@@ -83,6 +83,7 @@ best.attribute <-
       
       nodos <- unique(data[, 1])
       entropias <- c()
+      splitValue <- 0
       
       for (j in 1:length(nodos)) {
         nodo <- nodos[j]
@@ -93,8 +94,7 @@ best.attribute <-
         nodoData[, 1] <- data[, 1][data[, 1] == nodo]
         nodoData[, 2] <- data[, 2][data[, 1] == nodo]
         
-        nodoTotal <-
-          nrow(nodoData) # cantidad de valores con la etiqueta
+        nodoTotal <- nrow(nodoData) # valores con la etiqueta
         p <- c()
         
         for (k in 1:length(labels)) {
@@ -104,16 +104,23 @@ best.attribute <-
             pm <- 1
           }
           
-          p <-
-            c(p, pm) #los guarda en un arreglo que es el que va a la entropia
+          # guarda en arreglo para entropía
+          p <-  c(p, pm)
         }
         
-        entropias <-
-          c(entropias, (nodoTotal / cantTotal) * entropia(p))
+        splitValue <- splitValue - (nodoTotal / cantTotal) * log2(nodoTotal / cantTotal)
+        
+        entropias <- c(entropias, (nodoTotal / cantTotal) * entropia(p))
       }
       
       ganancias[i, 1] <- attributes[i]
       ganancias[i, 2] <- entropia - sum(entropias)
+      
+      if(splitInf){
+        ganancias[i,2] <- (entropia - sum(entropias)) / splitvalue
+      }else{
+        ganancias[i,2] <- entropia - sum(entropias)
+      }
     }
     
     best.att <- ganancias[order(ganancias[, 2], decreasing = TRUE)][1]
@@ -209,7 +216,7 @@ id3 <- function(examples, target, attributes, labels, tree) {
   root <- new.node(attribute, VALUES[[attribute]])
   
   if (is.null(tree))
-    tree <- new.tree(root)
+    tree <- new.tree(root) # Raíz
   # cat("attribute selected: ", attribute, "\n")
   
   

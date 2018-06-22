@@ -136,6 +136,8 @@ aux.pred[aux.pred<0.5] <- "NO-SPAM"
 aux.true <- trainset[colCategory]
 result <- cbind(aux.true,aux.pred,aux.true==aux.pred)
 names(result) <- c("TRUE-VALUE", "PREDICTION", "CORRECT?")
+
+print(result)
 ```
 
 ### Punto (B) 

@@ -87,6 +87,9 @@ naiveBayesModel <- function(examples,
         # ADD YOUR CODE HERE
         #
         ########
+        ind.value <- which(examples[,att]==value)
+        cant.value <- length(ind.value)
+        f_cond <- sum(examples[which(examples[,att]==value),target.attribute]==class)
         
         # Aplicar la Corrección de Laplace, para que los valores "cero" no den problemas.
         f_cond <- f_cond + laplace
@@ -108,6 +111,13 @@ naiveBayesModel <- function(examples,
       # ADD YOUR CODE HERE
       #
       ########
+      prob.cond <- 0
+      
+      total.class <- sum(model[[att]][class,])
+      
+      for(value in colnames(model[[att]])){
+        model[[att]][class,value] <- (model[[att]][class,value] / total.class)
+      }
     }
   }
   
@@ -168,6 +178,15 @@ classify.example <- function(model, test_set) {
   # ADD YOUR CODE HERE
   #
   ########
+  for( i in 1:nrow(result)){
+    rowTotal <- 0
+    for(j in 1:(ncol(result)-1)){
+      rowTotal <- as.numeric(result[i,j]) + rowTotal
+    }
+
+    result[i,] <- result[i,]/rowTotal
+    result[i,ncol(result)] <- which(result[i,]==max(result[i,]))
+  }
   
   return(result)
 }
@@ -187,12 +206,25 @@ classify.example <- function(model, test_set) {
 
 load.data <- function(path='../data/tennis.csv')
 {
-  examples <- read.csv(path,header=TRUE, stringsAsFactors=FALSE)
-  examples <- as.matrix(examples)  
-  attributes <- as.vector(dimnames(examples)[[2]])
-  attributes <- attributes[-(ncol(examples))]
-  etiquetas <- unique(examples[,ncol(examples)])
-  target <- (colnames(examples))[length(colnames(examples))]
+  if(endsWith(path,"csv")){
+    examples <- read.csv(path,header=TRUE, stringsAsFactors=FALSE)
+    examples <- as.matrix(examples) 
+    attributes <- as.vector(dimnames(examples)[[2]])
+    attributes <- attributes[-(ncol(examples))]
+    etiquetas <- unique(examples[,ncol(examples)])
+    target <- (colnames(examples))[length(colnames(examples))]
+  } else {
+    source("read-matrix.R") 
+    m.train <- read_matrix(filename="../data/MATRIX.TRAIN.50",ocurrence=FALSE,sparse=FALSE)
+    examples <- as.matrix(m.train$matrix)
+    for(j in 1:(ncol(examples)-1)){
+      dimnames(examples)[[2]][j] <- m.train$tokens[j]
+    }
+    attributes <- as.vector(dimnames(examples)[[2]])
+    attributes <- attributes[-ncol(examples)]
+    etiquetas <- unique(examples[,ncol(examples)])
+    target <- (colnames(examples))[length(colnames(examples))]
+  }
   
   return (list(target.attribute=target,
 		        labels = etiquetas,
