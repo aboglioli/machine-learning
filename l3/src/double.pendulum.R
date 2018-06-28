@@ -201,6 +201,8 @@ run_pendulum_experiment <- function(){
 
 
   ## ANN
+  # sizes <- c(1,2,3,4)
+  # maxits <- c(10, 100, 1000, 5000)
   m <- nnet(x=X.train, y=Y.train, size=4, maxit=500, linout=TRUE,abstol = 1.0e-4, reltol = 1.0e-4)
  
   # predict for ANN. Call the method predict.ann
