@@ -1,0 +1,50 @@
+---
+title: "Respuestas"
+output: html_notebook
+---
+
+# Laboratorio 2
+
+#### Training Dataset
+
+*The sample of data used to fit the model.*
+
+Un conunto de entrenamiento provee de ejemplos usados para el aprendizaje, es decir, para ajustar los parametros (por ejemplo, pesos) de, por ejemplo, un clasificador.
+
+El dataset que se utiliza para entrenar el modelo (pesos y *biases* en el caso de Redes Neuronales). El modelo ve y aprende de estos datos.
+
+#### Test Dataset
+
+*The sample of data used to provide an unbiased evaluation of a final model fit on the training dataset.*
+
+Un conjunto de testeo debe ser **independiente** del conjunto de entrenamiento, aunque sigue la misma distribución probabilística que el conjunto de entrenamiento.
+
+Si un modelo se ajusta al conjunto de entrenamiento también debe ajustarse al conjunto de testeo.
+
+Es un conjunto de ejemplos que se usan sólo para evaluar el rendimiento (es decir, generalización) de un clasificador completamente especificado.
+
+#### Cross-Validation
+Es una técnica utilizada para evaluar los resultados de un análisis estadístico y garantizar que son independientes de la partición entre datos de entrenamiento y prueba.
+
+Consiste en repetir y calcular la media aritmética obtenida de las medidas de evaluación sobre diferentes particiones.
+
+Se utiliza en entornos donde el objetivo principal es la predicción y se quiere estimar la precisión de un modelo que se llevará a cabo a la práctica.
+
+Suponemos que tenemos un modelo con uno o más parámetros de ajuste desconocidos y unos datos de entrenamiento que queremos analizar. El proceso de ajuste optimiza los parámetros del modelo para que éste se ajuste a los datos de entrenamiento tan bien como pueda. Si tomamos una muestra independiente como dato de prueba (validación), del mismo grupo que los datos de entrenamiento, normalmente el modelo no se ajustará a los datos de prueba igual de bien que a los datos de entrenamiento. Esto se denomina **sobreajuste** y acostumbra a pasar cuando el tamaño de los datos de entrenamiento es pequeño o cuando el número de parámetros del modelo es grande. La validación cruzada es una manera de predecir el ajuste de un modelo a un hipotético conjunto de datos de prueba cuando no disponemos del conjunto explícito de datos de prueba.
+
+![](cross_validation.jpg)
+
+### ¿Por qué se usa un conjunto de entrenamiento para aprender el modelo y no se hace sobre el conjunto completo?
+
+Como se menciona, ambos modelos deben ser independientes entre sí.
+
+Como el conjunto de pruebas se utiliza para medir qué tan bien el modelo utilizado realiza predicciones sobre dicho conjunto, este no debe estar incluído ni incidir en el conjunto de entrenamiento.
+
+En este caso, al llamar a `svm.kfold` pasamos el conjunto de entrenamiento:
+
+```r
+svm.model <- svm.kfold(gammas,costs,train.set,k)
+```
+
+Queremos obtener los mejores parámetros para ese conjunto de entrenamiento, para luego obtener la precisión de esto haciendo uso del conjunto de pruebas.
+
